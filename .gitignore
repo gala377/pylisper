@@ -1,0 +1,6 @@
+*.pyc
+dist/
+.vscode
+.idea
+*.swp
+private/
