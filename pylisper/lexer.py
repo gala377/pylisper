@@ -1,19 +1,19 @@
 from rply import LexerGenerator
 
-
 TOKENS = {
-    'NUMBER': r'(0|\d+)',
-    'LPAREN': r'\(',
-    'RPAREN': r'\)',
-    'STRING': r'".*?"',
-    'NAME': r'[^\d\s")(][^\s)("]*',
+    "LPAREN": r"\(",
+    "RPAREN": r"\)",
+    "STRING": r'"([^"\\]|\\.)*"',
+    "SYMBOL": r"""[^)('"`,;]*""",
 }
+
 
 def _lispy_lexer_generator():
     lg = LexerGenerator()
-    lg.ignore(r'\s+')
+    lg.ignore(r"\s+|(;.*?(\n|$))")
     for name, pat in TOKENS.items():
         lg.add(name, pat)
     return lg
+
 
 lexer = _lispy_lexer_generator().build()
