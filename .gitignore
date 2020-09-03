@@ -5,3 +5,4 @@ dist/
 *.swp
 private/
 *.egg-info
+.hypothesis
