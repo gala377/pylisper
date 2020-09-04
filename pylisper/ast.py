@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, MutableMapping, Optional, Sequence
+from collections import UserList
+from typing import Any, Optional, Sequence
 
 
 class BaseNode(ABC):
@@ -27,7 +28,10 @@ class Number(BaseNode):
         self.value = value
 
     def accept(self, visitor: NodeVisitor):
-        visitor.visit_number(self)
+        return visitor.visit_number(self)
+
+    def __str__(self):
+        return str(self.value)
 
 
 class String(BaseNode):
@@ -35,7 +39,10 @@ class String(BaseNode):
         self.value = value
 
     def accept(self, visitor: NodeVisitor):
-        visitor.visit_string(self)
+        return visitor.visit_string(self)
+
+    def __str__(self):
+        return self.value
 
 
 class Symbol(BaseNode):
@@ -68,15 +75,32 @@ class Symbol(BaseNode):
         return self
 
     def accept(self, visitor: NodeVisitor):
-        visitor.visit_symbol(self)
+        return visitor.visit_symbol(self)
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        repr = super().__repr__()
+        parts = repr.split()
+        parts[0] = f"{parts[0]}({self.value})"
+        return " ".join(parts)
 
 
-class List(BaseNode):
+class List(UserList, BaseNode):
     def __init__(self, exprs: Optional[Sequence[BaseNode]] = None):
-        self.exprs = exprs
+        super().__init__(exprs)
+
+    @property
+    def exprs(self):
+        return self.data
 
     def accept(self, visitor: NodeVisitor):
-        visitor.visit_list(self)
+        return visitor.visit_list(self)
+
+    def __str__(self):
+        inner = map(str, self.data)
+        return f"({' '.join(inner)})"
 
 
 class NodeVisitor(ABC):
