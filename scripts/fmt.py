@@ -2,7 +2,8 @@ from subprocess import run
 
 
 def main():
-    run(['black', 'pylisper'])
-    run(['isort', 'pylisper'])
-    run(['autoflake', '-i', '-r', '--ignore-init-module-imports', 'pylisper'])
-    run(['flake8', 'pylisper'])
+    for dir in ['pylisper', 'tests']:
+        run(['black', dir])
+        run(['isort', dir])
+        run(['autoflake', '-i', '-r', '--ignore-init-module-imports', dir])
+        run(['flake8', dir])

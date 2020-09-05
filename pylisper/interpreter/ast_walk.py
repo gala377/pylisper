@@ -3,14 +3,9 @@ from __future__ import annotations
 from typing import Sequence
 
 from pylisper import ast
+from pylisper.interpreter.env import Env
+from pylisper.interpreter.exceptions import EvaluationError
 from pylisper.interpreter.objects import Lambda
-
-
-class EvaluationError(Exception):
-    """
-    An exception to be raised during expression
-    evaluation.
-    """
 
 
 class AstWalkEvaluator(ast.NodeVisitor):
@@ -43,8 +38,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
     def visit_list(self, node: ast.List):
         if not node:
             raise EvaluationError("Cannot evaluate an empty list")
-        print(f"eval list - head is {node[0]}")
-        if node[0] in self._special_forms:
+        if isinstance(node[0], ast.Symbol) and node[0] in self._special_forms:
             return self._special_forms[node[0]](node)
         evaled = [n.accept(self) for n in node]
         func = evaled.pop(0)
@@ -74,7 +68,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
 
     def _eval_cond(self, node: ast.List):
         exprs = node.exprs
-        if len(exprs) < 3:
+        if len(exprs) < 2:
             raise EvaluationError(
                 "cond form should consist of at least one condition"
                 " and one expression to evaluate"
@@ -82,8 +76,9 @@ class AstWalkEvaluator(ast.NodeVisitor):
         exprs = exprs[1:]
         while exprs:
             try:
-                cond, expr, *exprs = exprs
-            except ValueError:
+                arm, *exprs = exprs
+                cond, expr = arm
+            except (ValueError, TypeError):
                 raise EvaluationError(
                     "each condition should be followed by"
                     " an expression to be evaluated."

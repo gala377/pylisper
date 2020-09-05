@@ -19,6 +19,7 @@ hypothesis = "^5.30.0"
 
 [tool.poetry.scripts]
 fmt = 'scripts.fmt:main'
+repl = 'pylisper.repl:main'
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -1,24 +1,21 @@
-from parser import parser
-
-from interpreter.ast_walk import AstWalkEvaluator, Env
-from lexer import lexer
+from pylisper.interpreter.ast_walk import AstWalkEvaluator
+from pylisper.interpreter.env import STD_ENV, Env
+from pylisper.interpreter.exceptions import EvaluationError
+from pylisper.lexer import lexer
+from pylisper.parser import parser
 
 
 def main():
-    env = Env()
+    env = Env(STD_ENV)
     eval = AstWalkEvaluator(env)
     while True:
         print(">>>", end=" ")
         expr = input()
         try:
             ast = parser.parse(lexer.lex(expr))
-            # print(ast)
-            # if isinstance(ast, List):
-            #     for expr in ast:
-            #         print(expr)
             print(ast.accept(eval))
-        except Exception as e:
-            print(e)
+        except EvaluationError as e:
+            print(f"error: {e}")
 
 
 if __name__ == "__main__":

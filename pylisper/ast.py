@@ -95,6 +95,10 @@ class List(UserList, BaseNode):
     def exprs(self):
         return self.data
 
+    @property
+    def empty(self):
+        return len(self.data) == 0
+
     def accept(self, visitor: NodeVisitor):
         return visitor.visit_list(self)
 
