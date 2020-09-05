@@ -1,5 +1,5 @@
 import utils.strategies as st
-from hypothesis import given
+from hypothesis import given, assume
 
 from pylisper.lexer import lexer
 
@@ -15,7 +15,7 @@ def test_integers(val):
     assert_token(tok, str(val), "SYMBOL")
 
 
-@given(st.symbol())
+@given(st.symbols())
 def test_symbols(val):
     tok, *_ = lexer.lex(val)
     assert_token(tok, val, "SYMBOL")
@@ -27,15 +27,16 @@ def test_parenthesis():
     assert_token(rpar, ")", "RPAREN")
 
 
-@given(st.symbol(), st.text())
+@given(st.symbols(), st.text())
 def test_comments(val, comment):
+    assume('\n' not in comment[:-1])
     val_comment = f"{val};{comment}"
     tokens = [t for t in lexer.lex(val_comment)]
     assert len(tokens) == 1
     assert_token(tokens[0], val, "SYMBOL")
 
 
-@given(st.lists(st.symbol()))
+@given(st.lists(st.symbols()))
 def test_list_of_symbols(vals):
     vals = ["("] + vals + [")"]
     vals = zip(lexer.lex(" ".join(vals)), vals)
@@ -45,3 +46,4 @@ def test_list_of_symbols(vals):
     assert_token(par[0], ")", "RPAREN")
     for tok, v in vals:
         assert_token(tok, v, "SYMBOL")
+
