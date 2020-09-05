@@ -4,5 +4,8 @@ from hypothesis.strategies import *
 from pylisper.lexer import TOKENS as _TOKENS
 
 
-def symbols():
-    return from_regex(_TOKENS["SYMBOL"], fullmatch=True)
+def symbols(allow_numbers=True):
+    patt = _TOKENS["SYMBOL"]
+    if not allow_numbers:
+        patt += r"""[^)('"`,;\s\r\d)]"""
+    return from_regex(patt, fullmatch=True)
