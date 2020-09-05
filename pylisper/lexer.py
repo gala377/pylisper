@@ -4,7 +4,7 @@ TOKENS = {
     "LPAREN": r"\(",
     "RPAREN": r"\)",
     "STRING": r'"([^"\\]|\\.)*"',
-    "SYMBOL": r"""[^)('"`,;\s]*""",
+    "SYMBOL": r"""[^)('"`,;\s\r]+""",
 }
 
 
