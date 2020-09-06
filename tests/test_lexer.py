@@ -9,7 +9,7 @@ def assert_token(tok, val, type):
     assert tok.name == type
 
 
-@given(st.integers(min_value=0))
+@given(st.naturals())
 def test_integers(val):
     tok, *_ = lexer.lex(str(val))
     assert_token(tok, str(val), "SYMBOL")
@@ -30,7 +30,7 @@ def test_parenthesis():
 @given(st.symbols(), st.text())
 def test_comments(val, comment):
     assume("\n" not in comment[:-1])
-    val_comment = f"{val};{comment}"
+    val_comment = f"{val};;{comment}"
     tokens = [t for t in lexer.lex(val_comment)]
     assert len(tokens) == 1
     assert_token(tokens[0], val, "SYMBOL")

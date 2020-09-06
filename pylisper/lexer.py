@@ -10,7 +10,7 @@ TOKENS = {
 
 def _lispy_lexer_generator():
     lg = LexerGenerator()
-    lg.ignore(r"\s+|(;.*?(\n|$))")
+    lg.ignore(r"\s+|(;;.*?(\n|$))")
     for name, pat in TOKENS.items():
         lg.add(name, pat)
     return lg
