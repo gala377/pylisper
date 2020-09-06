@@ -64,7 +64,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
             )
         for arg in node[1]:
             if not isinstance(arg, ast.Symbol):
-                raise EvaluationError("lambda forms arguments should be symbols")
+                raise EvaluationError("lambda form arguments should be symbols")
         return Lambda(self, node[2], node[1])
 
     def _eval_cond(self, node: ast.List):
