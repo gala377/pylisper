@@ -1,7 +1,8 @@
+from unittest import mock
+
 import pytest
 import utils.strategies as st
 from hypothesis import given
-from unittest import mock
 
 from pylisper import ast
 from pylisper.interpreter.ast_walk import AstWalkEvaluator
@@ -12,6 +13,7 @@ from pylisper.parser import parser
 
 # arbitrarily chosen
 RECURSION_LIMIT = 100
+
 
 def eval(source, init_env=None):
     if init_env is None:
@@ -54,6 +56,7 @@ def test_symbol_evaluation(sym, val):
     eval(f"(define {sym} {val})", init_env=env)
     assert eval(sym, init_env=env) == val
 
+
 @given(st.naturals())
 def test_lambda_evaluation(val):
     m = mock.Mock()
@@ -61,15 +64,57 @@ def test_lambda_evaluation(val):
     eval(f"((lambda (x) (func x)) {val})", init_env=env)
     m.assert_called_once_with(val)
 
+
 @given(st.naturals())
 def test_lambda_env_capture(val):
     m = mock.Mock()
     env = Env({ast.Symbol("func"): m})
-    eval("""
-        (define a 
-            (lambda (x) 
+    eval(
+        """
+        (define a
+            (lambda (x)
                 (lambda () (func x))))
-    """, init_env=env)
+        """,
+        init_env=env,
+    )
     eval(f"(define b (a {val}))", init_env=env)
-    eval(f"(b)", init_env=env)
+    eval("(b)", init_env=env)
     m.assert_called_once_with(val)
+
+
+@given(st.naturals(max_value=RECURSION_LIMIT))
+def test_recursive_function_call(val):
+    m = mock.Mock()
+    env = Env({ast.Symbol("func"): m, **STD_ENV})
+    calls = [mock.call(x) for x in range(val, 0, -1)]
+    eval(
+        """
+        (define a
+            (lambda (acc _)
+                (cond
+                    ((= acc 0) #t)
+                    (#t (a (- acc 1) (func acc))))))
+        """,
+        init_env=env,
+    )
+    assert eval(f"(a {val} (func {val}))", init_env=env)
+    m.assert_has_calls(calls)
+
+def test_against_env_reference_cycle():
+    env = Env(STD_ENV)
+    eval("""
+        (define a
+            (lambda (acc)
+                (cond
+                    ((= acc 0) #t)
+                    (#t (a (- acc 1))))))
+    """, init_env=env)
+    assert eval("(a 10)", env)
+    eval("""
+        (define a
+            (lambda (acc)
+                (cond
+                    ((= acc 0) #t)
+                    (#t (a (- acc 1))))))
+    """, init_env=env)
+    assert eval("(a 10)", env)

@@ -16,8 +16,8 @@ class AstWalkEvaluator(ast.NodeVisitor):
             ast.Symbol("quote"): self._eval_quote,
             ast.Symbol("cond"): self._eval_cond,
             ast.Symbol("lambda"): self._eval_lambda,
-            # ast.Symbol("defun"): self._eval_defun,
             # ast.Symbol('set!'): self._eval_set,
+            # ast.Symbool('begin): self._eval_begin,
         }
 
     def eval(self, ast: ast.BaseNode):
@@ -49,6 +49,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
         return func(*evaled)
 
     def push_env(self, env: Env):
+        assert env is not self._current_env
         env.parent = self._current_env
         self._current_env = env
 
