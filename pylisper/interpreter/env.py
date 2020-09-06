@@ -29,10 +29,6 @@ class Env(UserDict):
         return
 
 
-# TODO - do not represent ast.List as itself after evaluation
-# TODO - maybe Cons object?
-
-
 def _cons(car, cdr):
     if not isinstance(cdr, ast.List):
         raise EvaluationError("second argument to cons has to be a list")

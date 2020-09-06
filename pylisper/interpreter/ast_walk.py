@@ -16,8 +16,8 @@ class AstWalkEvaluator(ast.NodeVisitor):
             ast.Symbol("quote"): self._eval_quote,
             ast.Symbol("cond"): self._eval_cond,
             ast.Symbol("lambda"): self._eval_lambda,
-            # ast.Symbol('set!'): self._eval_set,
-            # ast.Symbool('begin): self._eval_begin,
+            ast.Symbol("set!"): self._eval_set,
+            ast.Symbol("begin"): self._eval_begin,
         }
 
     def eval(self, ast: ast.BaseNode):
@@ -96,16 +96,31 @@ class AstWalkEvaluator(ast.NodeVisitor):
             )
         return node[1]
 
-    def _eval_defun(self, node: ast.List):
-        ...
-
-    def _eval_set(self, node: ast.List):
-        ...
-
     def _eval_define(self, node: ast.List):
         exprs = node.exprs
         self._check_define_form(exprs)
         self._current_env[exprs[1]] = exprs[2].accept(self)
+
+    def _eval_set(self, node: ast.List):
+        err = EvaluationError(
+            "set! form should consist of memory reference (Symbol or cons cell)"
+            " and an expression to evaluate"
+        )
+        try:
+            _, ref, expr = node
+        except ValueError:
+            raise err
+        if not isinstance(ref, ast.Symbol):
+            raise err
+        ref_env = self._current_env.lookup(ref)
+        if ref_env is None:
+            raise EvaluationError("unknown symbol")
+        ref_env[ref] = expr.accept(self)
+
+    def _eval_begin(self, node: ast.List):
+        for expr in node.exprs[1:-1]:
+            expr.accept(self)
+        return node.exprs[-1].accept(self)
 
     def _check_define_form(self, exprs: Sequence[ast.BaseNode]):
         if len(exprs) != 3 or not isinstance(exprs[1], ast.Symbol):

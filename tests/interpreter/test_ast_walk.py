@@ -100,21 +100,68 @@ def test_recursive_function_call(val):
     assert eval(f"(a {val} (func {val}))", init_env=env)
     m.assert_has_calls(calls)
 
+
 def test_against_env_reference_cycle():
     env = Env(STD_ENV)
-    eval("""
+    eval(
+        """
         (define a
             (lambda (acc)
                 (cond
                     ((= acc 0) #t)
                     (#t (a (- acc 1))))))
-    """, init_env=env)
+    """,
+        init_env=env,
+    )
     assert eval("(a 10)", env)
-    eval("""
+    eval(
+        """
         (define a
             (lambda (acc)
                 (cond
                     ((= acc 0) #t)
                     (#t (a (- acc 1))))))
-    """, init_env=env)
+    """,
+        init_env=env,
+    )
     assert eval("(a 10)", env)
+
+
+@given(st.symbols(allow_numbers=False), st.naturals())
+def test_set_form_evaluation(sym, val):
+    env = Env()
+    eval(f"(define {sym} (quote ()))", env)
+    eval(f"(set! {sym} {val})", env)
+    assert env[ast.Symbol(sym)] == val
+
+
+@given(st.symbols(allow_numbers=False), st.naturals())
+def test_set_form_setting_value_in_outer_scope(sym, val):
+    env = Env()
+    eval(f"(define {sym} (quote ()))", env)
+    eval(
+        f"""
+        (define a (lambda () (set! {sym} {val})))
+    """,
+        env,
+    )
+    eval("(a)", env)
+    assert env[ast.Symbol(sym)] == val
+
+
+@given(st.symbols(allow_numbers=False), st.naturals(), st.naturals())
+def test_set_form_setting_value_in_inner_scope(sym, outer, inner):
+    m = mock.Mock()
+    env = Env({ast.Symbol("func"): m})
+    eval(f"(define {sym} {outer})", env)
+    eval(
+        f"""
+        (define a
+            (lambda ({sym})
+                (begin
+                    (set! {sym} {inner})
+                    (func {sym}))))
+    """, env)
+    eval("(a (quote ()))", env)
+    m.assert_called_once_with(inner)
+    assert env[ast.Symbol(sym)] == outer
