@@ -9,3 +9,7 @@ def symbols(allow_numbers=True):
     if not allow_numbers:
         patt += r"""[^)('"`,;\s\r\d)]"""
     return from_regex(patt, fullmatch=True)
+
+
+def naturals(max_value=None):
+    return integers(min_value=0, max_value=max_value)
