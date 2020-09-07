@@ -76,13 +76,6 @@ class List(UserList, BaseNode):
         """
         return self.data
 
-    @property
-    def empty(self):
-        """
-        Checks if the list is empty.
-        """
-        return len(self.data) == 0
-
     def accept(self, visitor: NodeVisitor):
         return visitor.visit_list(self)
 
