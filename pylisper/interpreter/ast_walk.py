@@ -26,9 +26,6 @@ class AstWalkEvaluator(ast.NodeVisitor):
     def visit_number(self, node: ast.Number):
         return node.value
 
-    def visit_string(self, node: ast.String):
-        return node.value
-
     def visit_symbol(self, node: ast.Symbol):
         env = self._current_env.lookup(node)
         if env is None:

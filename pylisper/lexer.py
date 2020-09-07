@@ -3,7 +3,6 @@ from rply import LexerGenerator
 TOKENS = {
     "LPAREN": r"\(",
     "RPAREN": r"\)",
-    "STRING": r'"([^"\\]|\\.)*"',
     "SYMBOL": r"""[^)('"`,;\s\r]+""",
 }
 

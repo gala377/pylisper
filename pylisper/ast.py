@@ -34,17 +34,6 @@ class Number(BaseNode):
         return str(self.value)
 
 
-class String(BaseNode):
-    def __init__(self, value: str):
-        self.value = value
-
-    def accept(self, visitor: NodeVisitor):
-        return visitor.visit_string(self)
-
-    def __str__(self):
-        return self.value
-
-
 class Symbol(BaseNode):
     """
     AST node representing an identifier in the source code.
@@ -121,10 +110,6 @@ class NodeVisitor(ABC):
 
     @abstractmethod
     def visit_number(self, node: Number):
-        ...
-
-    @abstractmethod
-    def visit_string(self, node: String):
         ...
 
     @abstractmethod

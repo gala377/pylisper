@@ -1,6 +1,6 @@
 from rply import ParserGenerator
 
-from pylisper.ast import List, Number, String, Symbol
+from pylisper.ast import List, Number, Symbol
 from pylisper.lexer import TOKENS
 
 ACCEPTED_TOKEN_NAMES = [t for t in TOKENS]
@@ -29,10 +29,6 @@ def _pylisper_parser_gen():
     @pg.production("sexprs : sexpr")
     def single_expr_sexprs(prod):
         return List([prod[0]])
-
-    @pg.production("atom : STRING")
-    def atom_string(prod):
-        return String(prod[0].getstr())
 
     @pg.production("atom : SYMBOL")
     def atom_symbol(prod):
