@@ -60,9 +60,9 @@ class PylisperConsole(code.InteractiveConsole):
         else:
             if res is None:
                 res = "()"
-            elif res == True:
+            elif res is True:
                 res = "#t"
-            elif res == False:
+            elif res is False:
                 res = "#f"
             self.write(res)
 
