@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import UserList
-from typing import Any, Optional, Sequence
+from typing import Optional, Sequence
 
 
 class BaseNode(ABC):
@@ -46,6 +46,7 @@ class Symbol(BaseNode):
     Simple wrapper for the string value representing
     an indentifier.
     """
+
     def __init__(self, value: str):
         self.value = value
 
@@ -54,7 +55,6 @@ class Symbol(BaseNode):
 
     def __str__(self):
         return self.value
-
 
 
 class List(UserList, BaseNode):

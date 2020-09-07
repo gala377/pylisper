@@ -30,7 +30,7 @@ class Evaluator:
     def _eval_symbol(self, symbol: obj.Symbol):
         env = self._current_env.lookup(symbol)
         if env is None:
-            raise EvaluationError("Undefinied symbol")
+            raise EvaluationError(f"Undefinied symbol {symbol}")
         return env[symbol]
 
     def _eval_list(self, list: obj.Cell):
@@ -123,12 +123,30 @@ class Evaluator:
             _, ref, expr = node
         except ValueError:
             raise err
-        if not isinstance(ref, obj.Symbol):
+        if isinstance(ref, obj.Symbol):
+            ref_env = self._current_env.lookup(ref)
+            if ref_env is None:
+                raise EvaluationError(f"unknown symbol {ref}")
+            ref_env[ref] = self.eval(expr)
+        elif isinstance(ref, obj.Cell) and ref.car is obj.Symbol("car"):
+            cell = self._eval_car_to_cell(ref)
+            cell.value = self.eval(expr)
+        else:
             raise err
-        ref_env = self._current_env.lookup(ref)
-        if ref_env is None:
-            raise EvaluationError(f"unknown symbol {ref}")
-        ref_env[ref] = self.eval(expr)
+
+    def _eval_car_to_cell(self, node: obj.Cell):
+        try:
+            car, expr = node
+        except ValueError:
+            raise EvaluationError(
+                "car should be followed by a single expression to evaluate"
+            )
+        cell = self.eval(expr)
+        if cell is None:
+            raise EvaluationError("car cannot be used on an empty list")
+        if not isinstance(cell, obj.Cell):
+            raise EvaluationError("car can only be called on a list")
+        return cell
 
     def _eval_begin(self, node: obj.Cell):
         try:

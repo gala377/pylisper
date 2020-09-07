@@ -8,7 +8,7 @@ class Number(BaseObject):
         self.value = value
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
     def __eq__(self, other: Number):
         if not isinstance(other, Number):

@@ -171,3 +171,21 @@ def test_set_form_setting_value_in_inner_scope(sym, outer, inner):
     eval("(a (quote ()))", env)
     m.assert_called_once_with(inner)
     assert env[obj.Symbol(sym)] == outer
+
+
+@given(st.lists(st.naturals(), min_size=1), st.naturals())
+def test_set_form_on_first_cell_in_list(init, val):
+    env = Env(STD_ENV)
+    list_vals = " ".join(map(str, init))
+    eval(f"(define loc (quote ({list_vals})))", env)
+    eval(f"(set! (car loc) {val})", env)
+    assert env[obj.Symbol("loc")].value == val
+
+
+@given(st.lists(st.naturals(), min_size=3), st.naturals())
+def test_set_form_on_some_cell_in_list(init, val):
+    env = Env(STD_ENV)
+    list_vals = " ".join(map(str, init))
+    eval(f"(define loc (quote ({list_vals})))", env)
+    eval(f"(set! (car (cdr (cdr loc))) {val})", env)
+    assert env[obj.Symbol("loc")].cdr.cdr.value == val
