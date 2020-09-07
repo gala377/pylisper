@@ -161,7 +161,9 @@ def test_set_form_setting_value_in_inner_scope(sym, outer, inner):
                 (begin
                     (set! {sym} {inner})
                     (func {sym}))))
-    """, env)
+    """,
+        env,
+    )
     eval("(a (quote ()))", env)
     m.assert_called_once_with(inner)
     assert env[ast.Symbol(sym)] == outer

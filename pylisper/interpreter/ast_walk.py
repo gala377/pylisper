@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Sequence
 
+import pylisper.interpreter.objects as obj
 from pylisper import ast
 from pylisper.interpreter.env import Env
 from pylisper.interpreter.exceptions import EvaluationError
-from pylisper.interpreter.objects import Lambda
 
 
 class AstWalkEvaluator(ast.NodeVisitor):
@@ -24,7 +24,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
         return ast.accept(self)
 
     def visit_number(self, node: ast.Number):
-        return node.value
+        return obj.Number(node.value)
 
     def visit_string(self, node: ast.String):
         return node.value
@@ -94,7 +94,15 @@ class AstWalkEvaluator(ast.NodeVisitor):
                 "quote form should consist of a single argument"
                 " which is a value to be quoted"
             )
-        return node[1]
+        node = node[1]
+        if isinstance(node, (ast.Number, ast.String)):
+            return node.value
+        elif isinstance(node, ast.List):
+            cell = None
+            for node in reversed(node.exprs):
+                cell = Cell.cons(self._eval_quote(node), cell)
+            return cell
+        return node
 
     def _eval_define(self, node: ast.List):
         exprs = node.exprs

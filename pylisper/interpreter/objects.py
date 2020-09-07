@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence
+from abc import ABC, abstractmethod
+from typing import Any, Optional, Sequence
 
 from pylisper import ast
 from pylisper.interpreter.env import Env
@@ -9,7 +10,13 @@ from pylisper.interpreter.exceptions import EvaluationError
 LambdaArgs = Sequence[ast.BaseNode]
 
 
-class Lambda:
+class BaseObject(ABC):
+    @abstractmethod
+    def __str__(self):
+        ...
+
+
+class Lambda(BaseObject):
     def __init__(self, eval, body: ast.BaseNode, args: LambdaArgs):
         self._eval_visitor = eval
         self._body = body
@@ -31,7 +38,7 @@ class Lambda:
         self._pop_envs()
         return res
 
-    def _push_envs(self, call_env):
+    def _push_envs(self, call_env: Env):
         if self._def_env is not None:
             self._eval_visitor.push_env(self._def_env)
         self._eval_visitor.push_env(call_env)
@@ -42,13 +49,51 @@ class Lambda:
             self._eval_visitor.pop_env()
 
 
-class Cell:
-    def __init__(self, car, cdr=None):
-        self.car = car
+class Number(BaseObject):
+    def __init__(self, value: int):
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            raise TypeError("Number class can only be compared with itself")
+        return self.value == other.value
+
+    def __add__(self, other):
+        if not isinstance(other, Number):
+            raise TypeError("Number class can only be added with itself")
+        return Number(self.value + other.value)
+
+    def __sub__(self, other):
+        if not isinstance(other, Number):
+            raise TypeError("Number class can only be added with itself")
+        return Number(self.value - other.value)
+
+
+class Cell(BaseObject):
+    def __init__(self, value: Any, cdr: Optional[Cell] = None):
+        self.value = value
         self.cdr = cdr
+
+    def extract(self):
+        return CellExtractIterator(self)
+
+    @property
+    def car(self):
+        return value
 
     def __iter__(self):
         return CellIterator(self)
+
+    @staticmethod
+    def cons(value: Any, cell: Cell):
+        return Cell(value, cell)
+
+    def __str__(self):
+        body = " ".join(map(str, self.extract()))
+        return f"({body})"
 
 
 class CellIterator:
@@ -61,6 +106,21 @@ class CellIterator:
     def __next__(self):
         if self._cell is None:
             raise StopIteration
-        val = self._cell.car
+        val = self._cell
+        self._cell = self._cell.cdr
+        return val
+
+
+class CellExtractIterator:
+    def __init__(self, cell: Cell):
+        self._cell = cell
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._cell is None:
+            raise StopIteration
+        val = self._cell.value
         self._cell = self._cell.cdr
         return val

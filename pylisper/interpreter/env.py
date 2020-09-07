@@ -5,7 +5,7 @@ from typing import Mapping, Optional
 
 from pylisper import ast
 from pylisper.interpreter.exceptions import EvaluationError
-
+from pylisper.interpreter import objects as obj
 
 class Env(UserDict):
     def __init__(self, init: Optional[Mapping] = None, parent: Optional[Env] = None):
@@ -30,17 +30,21 @@ class Env(UserDict):
 
 
 def _cons(car, cdr):
-    if not isinstance(cdr, ast.List):
+    if not isinstance(cdr, obj.Cell):
         raise EvaluationError("second argument to cons has to be a list")
-    return ast.List([car] + cdr.exprs)
+    return obj.Cell.cons(car, cdr)
 
 
-def _car(list):
-    if not isinstance(list, ast.List):
-        raise EvaluationError("car can only be used on lists")
-    if list.empty:
+def _car(cell):
+    if cell is None:
         raise EvaluationError("car cannot be used on an empty list")
-    return list.exprs[0]
+    if not isinstance(cell, obj.Cell):
+        raise EvaluationError("car can only be used on lists")
+    # TODO: we need to return a reference to a cell
+    # however in normal context a reference to a cell should
+    # evaluate to the underlaying value
+    # only set! treats it as a memory location
+    return cell.car
 
 
 def _cdr(list):
