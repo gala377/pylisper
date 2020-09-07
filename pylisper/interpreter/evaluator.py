@@ -39,17 +39,17 @@ class Evaluator:
             `EvaluationError`:
                 In case of error during evaluation.
         """
-        if isinstance(expr, obj.Number):
-            res = self._eval_number(expr)
-        elif isinstance(expr, obj.Symbol):
-            res = self._eval_symbol(expr)
-        else:
-            res = self._eval_list(expr)
-        if res == True:
-            return obj.Symbol("#t")
-        if res == False:
-            return obj.Symbol("#f")
-        return res
+        while True:
+            if isinstance(expr, obj.Number):
+                res = self._eval_number(expr)
+            elif isinstance(expr, obj.Symbol):
+                res = self._eval_symbol(expr)
+            else:
+                res = self._eval_list(expr)
+                if isinstance(res, _ReuseStack):
+                    expr = res.expr
+                    continue
+            return res
 
     def _eval_number(self, number: obj.Number):
         return number.value
@@ -124,12 +124,11 @@ class Evaluator:
         try:
             for cond, expr in exprs:
                 if self.eval(cond):
-                    return self.eval(expr)
+                    return _ReuseStack(expr)
         except (ValueError, TypeError):
             raise EvaluationError(
                 "each condition should be followed by an expression to be evaluated."
             )
-        return None
 
     def _eval_quote(self, node: obj.Cell):
         try:
@@ -199,4 +198,13 @@ class Evaluator:
             )
         for expr in exprs[:-1]:
             self.eval(expr)
-        return self.eval(exprs[-1])
+        return _ReuseStack(exprs[-1])
+
+
+class _ReuseStack:
+    """
+    Simple marker to wrap returned expression with if
+    the evaluator should perform tail optimization.
+    """
+    def __init__(self, expr):
+        self.expr = expr
