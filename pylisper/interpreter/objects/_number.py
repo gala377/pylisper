@@ -4,7 +4,18 @@ from pylisper.interpreter.objects._base import BaseObject
 
 
 class Number(BaseObject):
+    """
+    Simple wrapper for a pythons integer.
+    """
+
     def __init__(self, value: int):
+        """
+        Creates a new `Number`
+
+        Args/Kwargs:
+            value:
+                Integer to wrap.
+        """
         self.value = value
 
     def __str__(self):

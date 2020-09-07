@@ -30,7 +30,15 @@ class PylisperConsole(code.InteractiveConsole):
     without writing our own console.
     """
 
-    def __init__(self, env=None):
+    def __init__(self, env: Env = None):
+        """
+        Creates new `PylisperConsole`.
+
+        Args/Kwargs:
+            `env`:
+                Optional environment to run code with.
+                If `None` then `STD_ENV` is used.
+        """
         super().__init__()
         if env is None:
             env = Env(STD_ENV)
@@ -41,6 +49,10 @@ class PylisperConsole(code.InteractiveConsole):
         # TODO: for the readline
 
     def runcode(self, code):
+        """
+        Runs compiled code using `Evaluator` class and prints its result
+        as well as errors that could occur during evaluation.
+        """
         try:
             res = self.eval.eval(code)
         except EvaluationError as e:
@@ -53,9 +65,9 @@ class PylisperConsole(code.InteractiveConsole):
         """
         Evaluates input source.
 
-        Instead of the default implementation uses `AstWalkEvaluator`
-        to evaluate the source and then prints the result
-        to the console.
+        Instead of the default implementation uses `ObjectCompiler`
+        to compile source to internal representation and then
+        evaluates them with `runcode` method.
         """
         try:
             ast = parser.parse(lexer.lex(source))
@@ -74,6 +86,10 @@ class PylisperConsole(code.InteractiveConsole):
         return False
 
     def interact(self):
+        """
+        Simple `interact` override that sets the banner end
+        exit message.
+        """
         banner = (
             f"Pylisper {pylisper.__version__} on top of Pythons"
             f" {sys.version.split()[0]}"

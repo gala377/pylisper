@@ -25,9 +25,25 @@ class Symbol(BaseObject):
     _existing_symbols = {}
 
     def __new__(cls, value: str, *args: Any, **kwargs: Any):
+        """
+        Returns an instance of a `Symbol` class.
+
+        Args/Kwargs:
+            `value`:
+                A string value representing a symbol.
+            `*args`:
+                Arguments to pass to `__new__`.
+            `**kwargs`:
+                Keyword arguments to pass to `__new__`.
+
+        As described in class docstring.
+        When calling this method with the symbol
+        that it was already called with no new instance
+        is created.
+        """
         if value in cls._existing_symbols:
             return cls._existing_symbols[value]
-        self = super().__new__(cls)
+        self = super().__new__(cls, *args, **kwargd)
         self.value = value
         cls._existing_symbols[value] = self
         return self

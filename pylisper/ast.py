@@ -66,13 +66,18 @@ class List(UserList, BaseNode):
     def __init__(self, exprs: Optional[Sequence[BaseNode]] = None):
         """
         Initialiazes underlying list to the `exprs`.
+
+        Args/Kwargs:
+            `exprs`:
+                optional list to initialize internal data with.
+                If `None` new list is created. See `UserList` documentation.
         """
         super().__init__(exprs)
 
     @property
     def exprs(self):
         """
-        Returns underalying list.
+        Returns underlaying list.
         """
         return self.data
 
