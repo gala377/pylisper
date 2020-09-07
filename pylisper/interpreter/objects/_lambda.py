@@ -35,7 +35,7 @@ class Lambda(BaseObject):
         """
         self._evaluator = eval
         self._body = body
-        self._func_args = [] if args is None else args
+        self._func_args = tuple() if args is None else args
 
         assert all(map(lambda x: isinstance(x, Symbol), self._func_args))
 
@@ -91,4 +91,4 @@ class Lambda(BaseObject):
             self._evaluator.pop_env()
 
     def __str__(self):
-        return f"lambda {self.args} {self.body}"
+        return f"(lambda {self._func_args} {self._body})"
