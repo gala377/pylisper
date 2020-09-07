@@ -43,7 +43,7 @@ class Symbol(BaseObject):
         """
         if value in cls._existing_symbols:
             return cls._existing_symbols[value]
-        self = super().__new__(cls, *args, **kwargd)
+        self = super().__new__(cls, *args, **kwargs)
         self.value = value
         cls._existing_symbols[value] = self
         return self
