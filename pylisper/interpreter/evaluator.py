@@ -4,7 +4,18 @@ from pylisper.interpreter.exceptions import EvaluationError
 
 
 class Evaluator:
+    """
+    Allows for continous evaluation of
+    a model compiled by `ObjectCompiler`.
+    """
     def __init__(self, env: Env):
+        """
+        Create new Evaluator.
+
+        Args/Kwargs:
+            `env`:
+                Environment to initialize the Evaluator with.
+        """
         self._current_env = env
         self._special_forms = {
             obj.Symbol("define"): self._eval_define,
@@ -16,6 +27,18 @@ class Evaluator:
         }
 
     def eval(self, expr: obj.BaseObject):
+        """
+        Evaluate given expression with the environment
+        passed during object creation.
+
+        Args/Kwargs:
+            `expr`:
+                Expression to evaluate.
+
+        Raises:
+            `EvaluationError`:
+                In case of error during evaluation.
+        """
         if isinstance(expr, obj.Number):
             res = self._eval_number(expr)
         elif isinstance(expr, obj.Symbol):
@@ -48,11 +71,26 @@ class Evaluator:
         return func(*args)
 
     def push_env(self, env: Env):
+        """
+        Pushes new environment onto the stack.
+
+        Assertion is made to make sure that the same
+        environment is not pushed twice as that would
+        create a reference cycle. And probably that
+        is not what you want anyway.
+        """
         assert env is not self._current_env
         env.parent = self._current_env
         self._current_env = env
 
     def pop_env(self):
+        """
+        Pops environment from the stack.
+
+        Assertion is made to make sure that top level
+        environment is not popped from the stack as
+        that is not something that should ever happen.
+        """
         assert not self._current_env.is_global
         self._current_env = self._current_env.parent
 
