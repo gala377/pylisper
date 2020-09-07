@@ -28,6 +28,8 @@ class PylisperConsole(code.InteractiveConsole):
             env = Env(STD_ENV)
         self.env = env
         self.eval = AstWalkEvaluator(env)
+        # TODO: setup autocompletion and a history file
+        # TODO: for the readline
 
     def runcode(self, code):
         "stub for the new object model"
@@ -42,7 +44,7 @@ class PylisperConsole(code.InteractiveConsole):
         except (EvaluationError, SyntaxError, LexingError) as e:
             self.print_error(e)
             return False
-        # to be replaced with self.runcode later on
+        # TODO: to be replaced with self.runcode later on
         self.write(res)
         return False
 
