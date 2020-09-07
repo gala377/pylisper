@@ -62,7 +62,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
         for arg in node[1]:
             if not isinstance(arg, ast.Symbol):
                 raise EvaluationError("lambda form arguments should be symbols")
-        return Lambda(self, node[2], node[1])
+        return obj.Lambda(self, node[2], node[1])
 
     def _eval_cond(self, node: ast.List):
         exprs = node.exprs
@@ -97,7 +97,7 @@ class AstWalkEvaluator(ast.NodeVisitor):
         elif isinstance(node, ast.List):
             cell = None
             for node in reversed(node.exprs):
-                cell = Cell.cons(self._eval_quote(node), cell)
+                cell = obj.Cell.cons(self._eval_quote(node), cell)
             return cell
         return node
 

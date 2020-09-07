@@ -11,9 +11,11 @@ import sys
 from rply.errors import LexingError
 
 import pylisper
-from pylisper.interpreter.ast_walk import AstWalkEvaluator
-from pylisper.interpreter.env import STD_ENV, Env
+from pylisper.interpreter.compiler import ObjectCompiler
+from pylisper.interpreter.env import Env
+from pylisper.interpreter.evaluator import Evaluator
 from pylisper.interpreter.exceptions import EvaluationError
+from pylisper.interpreter.std_env import STD_ENV
 from pylisper.lexer import lexer
 from pylisper.parser import UnexpectedCharacter, parser
 
@@ -33,7 +35,8 @@ class PylisperConsole(code.InteractiveConsole):
         if env is None:
             env = Env(STD_ENV)
         self.env = env
-        self.eval = AstWalkEvaluator(env)
+        self.eval = Evaluator(env)
+        self.comp = ObjectCompiler()
         # TODO: setup autocompletion and a history file
         # TODO: for the readline
 
@@ -51,7 +54,8 @@ class PylisperConsole(code.InteractiveConsole):
         """
         try:
             ast = parser.parse(lexer.lex(source))
-            res = ast.accept(self.eval)
+            code = ast.accept(self.comp)
+            res = self.eval.eval(code)
         except pylisper.parser.IncompleteInput:
             return True
         except UnexpectedCharacter as e:
