@@ -1,22 +1,71 @@
+"""
+Contains definition of the evaluation runtime environment
+as well as standard runtime environment with implementations.
+"""
+
 from __future__ import annotations
 
 from collections import UserDict
 from typing import Mapping, Optional
 
 from pylisper import ast
-from pylisper.interpreter.exceptions import EvaluationError
 from pylisper.interpreter import objects as obj
+from pylisper.interpreter.exceptions import EvaluationError
+
 
 class Env(UserDict):
+    """
+    Runtime environment providing simple symbol lookkup.
+
+    Environment is implemented as a simple wrapper around
+    pythons `dict` class with ability to lookup values
+    higher in the environments stack.
+
+    Environments stack is provided by simply setting
+    `parent` attribute to the higher environment.
+    It is important to note that setting environments
+    `parent` to itself will create a reference cycle.
+    """
+
     def __init__(self, init: Optional[Mapping] = None, parent: Optional[Env] = None):
+        """
+        Creates a new environment.
+
+        Args/Kwargs:
+            `init`:
+                Optional `dict` to initialize environment with.
+            `parent`:
+                Optional environments parent environment. If value cannot
+                be found in this envirinment it will be then searched
+                in its parent.
+        """
         super().__init__(init)
         self.parent = parent
 
     @property
     def is_global(self) -> bool:
+        """
+        Checks if the environment is global.
+
+        A global environment is considered to not have
+        a parent.
+        """
         return self.parent is None
 
-    def lookup(self, sym: ast.Symbol) -> Env:
+    def lookup(self, sym: ast.Symbol) -> Optional[Env]:
+        """
+        Returns environment containing passed symbol or `None`.
+
+        Args/Kwargs:
+            `sym`:
+                Symbol to search for.
+
+        If current environment contains passed symbol then `self`
+        is returned. Otherwise lookup is made in its paren environment.
+        If the environment doesn't contain passed symbol and
+        is global (which means it doesn't have a parent)
+        then `None` is returned.
+        """
         assert isinstance(sym, ast.Symbol)
         if sym in self.data:
             return self
@@ -83,3 +132,7 @@ STD_ENV = {
     ast.Symbol("-"): lambda a, b: a - b,
     ast.Symbol("+"): lambda a, b: a + b,
 }
+"""
+A `dict` instance containing standard environment to init
+global environment with.
+"""

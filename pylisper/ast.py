@@ -24,6 +24,13 @@ class BaseNode(ABC):
 
 
 class Number(BaseNode):
+    """
+    AST node representing a numerical value.
+
+    Just a simple wrapper for the integer value inside
+    with support for the Visitor protocol.
+    """
+
     def __init__(self, value: int):
         self.value = value
 
@@ -32,17 +39,6 @@ class Number(BaseNode):
 
     def __str__(self):
         return str(self.value)
-
-
-class String(BaseNode):
-    def __init__(self, value: str):
-        self.value = value
-
-    def accept(self, visitor: NodeVisitor):
-        return visitor.visit_string(self)
-
-    def __str__(self):
-        return self.value
 
 
 class Symbol(BaseNode):
@@ -88,15 +84,29 @@ class Symbol(BaseNode):
 
 
 class List(UserList, BaseNode):
+    """
+    Wrapper for the list object holding all of the
+    contained ast nodes.
+    """
+
     def __init__(self, exprs: Optional[Sequence[BaseNode]] = None):
+        """
+        Initialiazes underlying list to the `exprs`.
+        """
         super().__init__(exprs)
 
     @property
     def exprs(self):
+        """
+        Returns underalying list.
+        """
         return self.data
 
     @property
     def empty(self):
+        """
+        Checks if the list is empty.
+        """
         return len(self.data) == 0
 
     def accept(self, visitor: NodeVisitor):
@@ -121,10 +131,6 @@ class NodeVisitor(ABC):
 
     @abstractmethod
     def visit_number(self, node: Number):
-        ...
-
-    @abstractmethod
-    def visit_string(self, node: String):
         ...
 
     @abstractmethod
