@@ -58,7 +58,12 @@ class PylisperConsole(code.InteractiveConsole):
         except EvaluationError as e:
             self.print_error(e)
         else:
-            res = "()" if res is None else res
+            if res is None:
+                res = "()"
+            elif res == True:
+                res = "#t"
+            elif res == False:
+                res = "#f"
             self.write(res)
 
     def runsource(self, source, ignored_filename="<input>", symbol="single"):
