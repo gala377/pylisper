@@ -42,9 +42,11 @@ class PylisperConsole(code.InteractiveConsole):
 
     def runcode(self, code):
         try:
-            self.write(self.eval.eval(code))
+            res = self.eval.eval(code)
         except EvaluationError as e:
             self.print_error(e)
+        res = "()" if res is None else res
+        self.write(res)
 
     def runsource(self, source, ignored_filename="<input>", symbol="single"):
         """
