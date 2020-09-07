@@ -45,6 +45,10 @@ class Evaluator:
             res = self._eval_symbol(expr)
         else:
             res = self._eval_list(expr)
+        if res == True:
+            return obj.Symbol("#t")
+        if res == False:
+            return obj.Symbol("#f")
         return res
 
     def _eval_number(self, number: obj.Number):
