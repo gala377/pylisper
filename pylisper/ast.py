@@ -24,6 +24,13 @@ class BaseNode(ABC):
 
 
 class Number(BaseNode):
+    """
+    AST node representing a numerical value.
+
+    Just a simple wrapper for the integer value inside
+    with support for the Visitor protocol.
+    """
+
     def __init__(self, value: int):
         self.value = value
 

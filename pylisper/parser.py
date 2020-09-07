@@ -1,3 +1,7 @@
+"""
+Module containing `parser` object ready to parse source
+when provided with a lexer and parsing exceptions.
+"""
 from rply import ParserGenerator
 
 from pylisper.ast import List, Number, Symbol
@@ -7,10 +11,30 @@ ACCEPTED_TOKEN_NAMES = [t for t in TOKENS]
 
 
 class IncompleteInput(Exception):
-    ...
+    """
+    An exception to be thrown in case of possibility that
+    the input might be incomplete.
+    """
+
+class UnexpectedCharacter(Exception):
+    """
+    An exception to be thrown in case of encountering
+    an unexpected character in the input stream.
+    """
+
+    def __init__(self, char):
+        super().__init__()
+        self.char = char
+        self.msg = f"Unexpected character: '{char}'"
+
+    def __str__(self):
+        return self.msg
 
 
 def _pylisper_parser_gen():
+    """
+    Createas a rply parser generator for the pylisper.
+    """
     pg = ParserGenerator(ACCEPTED_TOKEN_NAMES)
 
     @pg.production("sexpr : atom")
@@ -46,7 +70,9 @@ def _pylisper_parser_gen():
     def error_handler(tok):
         if tok.name == "$end":
             raise IncompleteInput
-        raise SyntaxError
+        # TODO: remove later
+        print(tok)
+        raise UnexpectedCharacter(tok.value)
 
     return pg
 

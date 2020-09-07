@@ -1,3 +1,8 @@
+"""
+Contains definition of the evaluation runtime environment
+as well as standard runtime environment with implementations.
+"""
+
 from __future__ import annotations
 
 from collections import UserDict

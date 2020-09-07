@@ -1,3 +1,9 @@
+"""
+Can be run as module to start a pylispers repl.
+
+Contains `PylisperConsole` class which is a subclass
+of `code.InteractiveConsole`.
+"""
 import code
 import readline
 import sys
@@ -9,7 +15,7 @@ from pylisper.interpreter.ast_walk import AstWalkEvaluator
 from pylisper.interpreter.env import STD_ENV, Env
 from pylisper.interpreter.exceptions import EvaluationError
 from pylisper.lexer import lexer
-from pylisper.parser import parser
+from pylisper.parser import UnexpectedCharacter, parser
 
 
 class PylisperConsole(code.InteractiveConsole):
@@ -36,12 +42,19 @@ class PylisperConsole(code.InteractiveConsole):
         raise NotImplementedError
 
     def runsource(self, source, ignored_filename="<input>", symbol="single"):
+        """
+        Evaluates input source.
+
+        Instead of the default implementation uses `AstWalkEvaluator`
+        to evaluate the source and then prints the result
+        to the console.
+        """
         try:
             ast = parser.parse(lexer.lex(source))
             res = ast.accept(self.eval)
         except pylisper.parser.IncompleteInput:
             return True
-        except (EvaluationError, SyntaxError, LexingError) as e:
+        except (EvaluationError, UnexpectedCharacter, LexingError) as e:
             self.print_error(e)
             return False
         # TODO: to be replaced with self.runcode later on
