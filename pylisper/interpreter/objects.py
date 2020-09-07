@@ -27,8 +27,10 @@ class Lambda:
         env_init = dict(zip(self._func_args, args))
         call_env = Env(env_init)
         self._push_envs(call_env)
-        res = self._body.accept(self._eval_visitor)
-        self._pop_envs()
+        try:
+            res = self._body.accept(self._eval_visitor)
+        finally:
+            self._pop_envs()
         return res
 
     def _push_envs(self, call_env):
