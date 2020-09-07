@@ -6,6 +6,10 @@ from pylisper.lexer import TOKENS
 ACCEPTED_TOKEN_NAMES = [t for t in TOKENS]
 
 
+class IncompleteInput(Exception):
+    ...
+
+
 def _pylisper_parser_gen():
     pg = ParserGenerator(ACCEPTED_TOKEN_NAMES)
 
@@ -37,6 +41,12 @@ def _pylisper_parser_gen():
             return Number(val)
         except ValueError:
             return Symbol(prod[0].getstr())
+
+    @pg.error
+    def error_handler(tok):
+        if tok.name == "$end":
+            raise IncompleteInput
+        raise SyntaxError
 
     return pg
 

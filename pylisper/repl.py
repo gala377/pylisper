@@ -1,3 +1,10 @@
+import code
+import readline
+import sys
+
+from rply.errors import LexingError
+
+import pylisper
 from pylisper.interpreter.ast_walk import AstWalkEvaluator
 from pylisper.interpreter.env import STD_ENV, Env
 from pylisper.interpreter.exceptions import EvaluationError
@@ -5,17 +12,57 @@ from pylisper.lexer import lexer
 from pylisper.parser import parser
 
 
-def main():
-    env = Env(STD_ENV)
-    eval = AstWalkEvaluator(env)
-    while True:
-        print(">>>", end=" ")
-        expr = input()
+class PylisperConsole(code.InteractiveConsole):
+    """
+    An interactive console for the repl.
+
+    Closely modeled after after pypy's 3.6 `PyPyConsole`.
+    `code.InteractiveConnsole` class is written in python 2
+    however that is the best we can get from pythons std lib
+    without writing our own console.
+    """
+
+    def __init__(self, env=None):
+        super().__init__()
+        if env is None:
+            env = Env(STD_ENV)
+        self.env = env
+        self.eval = AstWalkEvaluator(env)
+
+    def runcode(self, code):
+        "stub for the new object model"
+        raise NotImplementedError
+
+    def runsource(self, source, ignored_filename="<input>", symbol="single"):
         try:
-            ast = parser.parse(lexer.lex(expr))
-            print(ast.accept(eval))
-        except EvaluationError as e:
-            print(f"error: {e}")
+            ast = parser.parse(lexer.lex(source))
+            res = ast.accept(self.eval)
+        except pylisper.parser.IncompleteInput:
+            return True
+        except (EvaluationError, SyntaxError, LexingError) as e:
+            self.print_error(e)
+            return False
+        # to be replaced with self.runcode later on
+        self.write(res)
+        return False
+
+    def interact(self):
+        banner = (
+            f"Pylisper {pylisper.__version__} on top of Pythons"
+            f" {sys.version.split()[0]}"
+        )
+        exit_msg = "Exiting..."
+        super().interact(banner, exit_msg)
+
+    def write(self, msg):
+        print(msg)
+
+    def print_error(self, err):
+        print(err)
+
+
+def main():
+    PylisperConsole().interact()
 
 
 if __name__ == "__main__":
