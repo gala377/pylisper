@@ -41,8 +41,10 @@ class PylisperConsole(code.InteractiveConsole):
         # TODO: for the readline
 
     def runcode(self, code):
-        "stub for the new object model"
-        raise NotImplementedError
+        try:
+            self.write(self.eval.eval(code))
+        except EvaluationError as e:
+            self.print_error(e)
 
     def runsource(self, source, ignored_filename="<input>", symbol="single"):
         """
@@ -55,18 +57,17 @@ class PylisperConsole(code.InteractiveConsole):
         try:
             ast = parser.parse(lexer.lex(source))
             code = ast.accept(self.comp)
-            res = self.eval.eval(code)
         except pylisper.parser.IncompleteInput:
             return True
         except UnexpectedCharacter as e:
             self.print_error(e)
             self.write(source.split("\n")[e.line - 1])
             return False
-        except (EvaluationError, LexingError) as e:
+        except LexingError as e:
+            # TODO: do something about lexing errors
             self.print_error(e)
             return False
-        # TODO: to be replaced with self.runcode later on
-        self.write(res)
+        self.runcode(code)
         return False
 
     def interact(self):
