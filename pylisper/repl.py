@@ -54,7 +54,11 @@ class PylisperConsole(code.InteractiveConsole):
             res = ast.accept(self.eval)
         except pylisper.parser.IncompleteInput:
             return True
-        except (EvaluationError, UnexpectedCharacter, LexingError) as e:
+        except UnexpectedCharacter as e:
+            self.print_error(e)
+            self.write(source.split('\n')[e.line-1])
+            return False
+        except (EvaluationError, LexingError) as e:
             self.print_error(e)
             return False
         # TODO: to be replaced with self.runcode later on

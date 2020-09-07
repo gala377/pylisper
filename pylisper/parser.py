@@ -16,16 +16,19 @@ class IncompleteInput(Exception):
     the input might be incomplete.
     """
 
+
 class UnexpectedCharacter(Exception):
     """
     An exception to be thrown in case of encountering
     an unexpected character in the input stream.
     """
 
-    def __init__(self, char):
+    def __init__(self, char, line, column):
         super().__init__()
         self.char = char
-        self.msg = f"Unexpected character: '{char}'"
+        self.line = line
+        self.column = column
+        self.msg = f"Unexpected character ({line}:{column}): '{char}'"
 
     def __str__(self):
         return self.msg
@@ -71,8 +74,9 @@ def _pylisper_parser_gen():
         if tok.name == "$end":
             raise IncompleteInput
         # TODO: remove later
-        print(tok)
-        raise UnexpectedCharacter(tok.value)
+        raise UnexpectedCharacter(
+            tok.value, tok.getsourcepos().lineno, tok.getsourcepos().colno
+        )
 
     return pg
 
