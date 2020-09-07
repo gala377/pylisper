@@ -1,5 +1,5 @@
 import pylisper.interpreter.objects as obj
-from pylisper.interpreter.exceptions import EvaluationError
+from pylisper.interpreter.exceptions import EvalTypeError, LogicError
 
 
 def _s(val: str):
@@ -8,23 +8,23 @@ def _s(val: str):
 
 def _cons(car, cdr):
     if not isinstance(cdr, obj.Cell):
-        raise EvaluationError("second argument to cons has to be a list")
+        raise EvalTypeError("second argument to cons has to be a list")
     return obj.Cell.cons(car, cdr)
 
 
 def _car(cell):
     if cell is None:
-        raise EvaluationError("car cannot be used on an empty list")
+        raise LogicError("car cannot be used on an empty list")
     if not isinstance(cell, obj.Cell):
-        raise EvaluationError("car can only be used on lists")
+        raise EvalTypeError("car can only be used on lists")
     return cell.car
 
 
 def _cdr(cell):
     if cell is None:
-        raise EvaluationError("cdr cannot be used on an empty list")
+        raise LogicError("cdr cannot be used on an empty list")
     if not isinstance(cell, obj.Cell):
-        raise EvaluationError("cdr can only be used on lists")
+        raise EvalTypeError("cdr can only be used on lists")
     return cell.cdr
 
 
@@ -35,10 +35,12 @@ def _atom(arg):
 def _null(arg):
     return arg is None
 
+
 def _not(arg):
     if not isinstance(arg, bool):
-        raise EvaluationError("not can only be called with bool value")
+        raise EvalTypeError("not can only be called with bool value")
     return not arg
+
 
 STD_ENV = {
     _s("cons"): _cons,

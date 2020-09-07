@@ -1,6 +1,7 @@
 import pylisper.interpreter.objects as obj
 from pylisper.interpreter.env import Env
-from pylisper.interpreter.exceptions import EvaluationError
+from pylisper.interpreter.exceptions import (EvalTypeError, EvaluationError,
+                                             InvalidForm, LogicError)
 
 
 class Evaluator:
@@ -8,6 +9,7 @@ class Evaluator:
     Allows for continous evaluation of
     a model compiled by `ObjectCompiler`.
     """
+
     def __init__(self, env: Env):
         """
         Create new Evaluator.
@@ -62,16 +64,14 @@ class Evaluator:
 
     def _eval_list(self, list: obj.Cell):
         if list is None:
-            raise EvaluationError("Cannot evaluate an empty list")
+            raise LogicError("Cannot evaluate an empty list")
         func, *args = list
         if isinstance(func, obj.Symbol) and func in self._special_forms:
             return self._special_forms[func](list)
         func = self.eval(func)
         args = [self.eval(arg) for arg in args]
         if not callable(func):
-            raise EvaluationError(
-                "First value of an unquoted list should be a function"
-            )
+            raise InvalidForm("First value of an unquoted list should be a function")
         return func(*args)
 
     def push_env(self, env: Env):
@@ -102,22 +102,22 @@ class Evaluator:
         try:
             _, args, body = node
         except ValueError:
-            raise EvaluationError(
+            raise InvalidForm(
                 "lambda form should consist of arguments and a function body"
             )
         if args is not None:
             if not isinstance(args, obj.Cell):
-                raise EvaluationError("lambdas arguments should be a list")
+                raise InvalidForm("lambdas arguments should be a list")
             for arg in args:
                 if not isinstance(arg, obj.Symbol):
-                    raise EvaluationError("lambda form arguments should be symbols")
+                    raise InvalidForm("lambda form arguments should be symbols")
         return obj.Lambda(self, args, body)
 
     def _eval_cond(self, node: obj.Cell):
         try:
             _, *exprs = node
         except ValueError:
-            raise EvaluationError(
+            raise InvalidForm(
                 "cond form should consist of at least one condition"
                 " and one expression to evaluate"
             )
@@ -126,7 +126,7 @@ class Evaluator:
                 if self.eval(cond):
                     return _ReuseStack(expr)
         except (ValueError, TypeError):
-            raise EvaluationError(
+            raise InvalidForm(
                 "each condition should be followed by an expression to be evaluated."
             )
 
@@ -134,7 +134,7 @@ class Evaluator:
         try:
             _, expr = node
         except ValueError:
-            raise EvaluationError(
+            raise InvalidForm(
                 "quote form should consist of a single argument"
                 " which is a value to be quoted"
             )
@@ -144,19 +144,17 @@ class Evaluator:
         try:
             _, sym, expr = node
         except ValueError:
-            raise EvaluationError(
+            raise InvalidForm(
                 "define form should consist of 2 elements"
                 " first one being a symbol and the second one being"
                 " an assigned expression"
             )
         if not isinstance(sym, obj.Symbol):
-            raise EvaluationError(
-                "first argument to the define form should be a symbol"
-            )
+            raise InvalidForm("first argument to the define form should be a symbol")
         self._current_env[sym] = self.eval(expr)
 
     def _eval_set(self, node: obj.Cell):
-        err = EvaluationError(
+        err = InvalidForm(
             "set! form should consist of memory reference (Symbol or cons cell)"
             " and an expression to evaluate"
         )
@@ -179,21 +177,21 @@ class Evaluator:
         try:
             car, expr = node
         except ValueError:
-            raise EvaluationError(
+            raise InvalidForm(
                 "car should be followed by a single expression to evaluate"
             )
         cell = self.eval(expr)
         if cell is None:
-            raise EvaluationError("car cannot be used on an empty list")
+            raise LogicError("car cannot be used on an empty list")
         if not isinstance(cell, obj.Cell):
-            raise EvaluationError("car can only be called on a list")
+            raise EvalTypeError("car can only be called on a list")
         return cell
 
     def _eval_begin(self, node: obj.Cell):
         try:
             _, *exprs = node
         except ValueError:
-            raise EvaluationError(
+            raise InvalidForm(
                 "begin form should be followed by at least one expression"
             )
         for expr in exprs[:-1]:
@@ -206,5 +204,6 @@ class _ReuseStack:
     Simple marker to wrap returned expression with if
     the evaluator should perform tail optimization.
     """
+
     def __init__(self, expr):
         self.expr = expr

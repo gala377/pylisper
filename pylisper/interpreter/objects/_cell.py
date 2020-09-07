@@ -74,6 +74,7 @@ class CellIterator:
     """
     An iterator over the cells values.
     """
+
     def __init__(self, cell: Cell):
         self._cell = cell
 
