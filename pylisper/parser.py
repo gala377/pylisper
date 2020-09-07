@@ -84,7 +84,6 @@ def _pylisper_parser_gen():
     def error_handler(tok):
         if tok.name == "$end":
             raise IncompleteInput
-        # TODO: remove later
         raise UnexpectedCharacter(
             tok.value, tok.getsourcepos().lineno, tok.getsourcepos().colno
         )

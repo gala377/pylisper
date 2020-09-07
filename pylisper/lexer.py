@@ -12,6 +12,7 @@ TOKENS = {
     "LPAREN": r"\(",
     "RPAREN": r"\)",
     "SYMBOL": r"""[^)('"`,;\s\r]+""",
+    "UNKNOWN": r"""['"`,;]""", # simple hack to get source pos of unknow char
 }
 """
 A `dict` containing token names with its
