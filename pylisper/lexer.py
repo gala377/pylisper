@@ -13,7 +13,10 @@ TOKENS = {
     "RPAREN": r"\)",
     "SYMBOL": r"""[^)('"`,;\s\r]+""",
 }
-
+"""
+A `dict` containing token names with its
+corresponding regexes.
+"""
 
 def _lispy_lexer_generator():
     """

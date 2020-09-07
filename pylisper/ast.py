@@ -84,15 +84,28 @@ class Symbol(BaseNode):
 
 
 class List(UserList, BaseNode):
+    """
+    Wrapper for the list object holding all of the
+    contained ast nodes.
+    """
     def __init__(self, exprs: Optional[Sequence[BaseNode]] = None):
+        """
+        Initialiazes underlying list to the `exprs`.
+        """
         super().__init__(exprs)
 
     @property
     def exprs(self):
+        """
+        Returns underalying list.
+        """
         return self.data
 
     @property
     def empty(self):
+        """
+        Checks if the list is empty.
+        """
         return len(self.data) == 0
 
     def accept(self, visitor: NodeVisitor):

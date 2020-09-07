@@ -24,6 +24,17 @@ class UnexpectedCharacter(Exception):
     """
 
     def __init__(self, char, line, column):
+        """
+        Creates new error instance.
+
+        Args/Kwargs:
+            `char`:
+                A character that caused an error.
+            `line`:
+                Line of input the character occured in.
+            `column`:
+                Index of the unexpected character in its line.
+        """
         super().__init__()
         self.char = char
         self.line = line
