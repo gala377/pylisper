@@ -7,7 +7,7 @@ from rply import ParserGenerator
 from pylisper.ast import List, Number, Symbol
 from pylisper.lexer import TOKENS
 
-ACCEPTED_TOKEN_NAMES = [t for t in TOKENS]
+ACCEPTED_TOKEN_NAMES = [t for t in TOKENS if t != "UNKNOWN"]
 
 
 class IncompleteInput(Exception):
