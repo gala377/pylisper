@@ -35,6 +35,10 @@ def _atom(arg):
 def _null(arg):
     return arg is None
 
+def _not(arg):
+    if not isinstance(arg, bool):
+        raise EvaluationError("not can only be called with bool value")
+    return not arg
 
 STD_ENV = {
     _s("cons"): _cons,
@@ -48,6 +52,7 @@ STD_ENV = {
     _s("="): lambda a, b: a == b,
     _s("-"): lambda a, b: a - b,
     _s("+"): lambda a, b: a + b,
+    _s("not"): _not,
 }
 """
 A `dict` instance containing standard environment to init
