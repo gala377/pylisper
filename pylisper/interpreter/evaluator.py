@@ -1,4 +1,5 @@
 import pylisper.interpreter.objects as obj
+import pylisper.interpreter.symbols as sym
 from pylisper.interpreter.env import Env
 from pylisper.interpreter.exceptions import (EvalTypeError, EvaluationError,
                                              InvalidFormError, LogicError)
@@ -20,12 +21,12 @@ class Evaluator:
         """
         self._current_env = env
         self._special_forms = {
-            obj.Symbol("define"): self._eval_define,
-            obj.Symbol("quote"): self._eval_quote,
-            obj.Symbol("cond"): self._eval_cond,
-            obj.Symbol("lambda"): self._eval_lambda,
-            obj.Symbol("set!"): self._eval_set,
-            obj.Symbol("begin"): self._eval_begin,
+            sym.DEFINE: self._eval_define,
+            sym.QUOTE: self._eval_quote,
+            sym.COND: self._eval_cond,
+            sym.LAMBDA: self._eval_lambda,
+            sym.SET: self._eval_set,
+            sym.BEGIN: self._eval_begin,
         }
 
     def eval(self, expr: obj.BaseObject):
@@ -171,7 +172,7 @@ class Evaluator:
             if ref_env is None:
                 raise EvaluationError(f"unknown symbol {ref}")
             ref_env[ref] = self.eval(expr)
-        elif isinstance(ref, obj.Cell) and ref.car is obj.Symbol("car"):
+        elif isinstance(ref, obj.Cell) and ref.car is sym.CAR:
             cell = self._eval_car_to_cell(ref)
             cell.value = self.eval(expr)
         else:

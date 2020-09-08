@@ -1,9 +1,6 @@
 import pylisper.interpreter.objects as obj
+import pylisper.interpreter.symbols as sym
 from pylisper.interpreter.exceptions import EvalTypeError, LogicError
-
-
-def _s(val: str):
-    return obj.Symbol(val)
 
 
 def _cons(car, cdr):
@@ -43,18 +40,18 @@ def _not(arg):
 
 
 STD_ENV = {
-    _s("cons"): _cons,
-    _s("cdr"): _cdr,
-    _s("car"): _car,
-    _s("atom?"): _atom,
-    _s("eq?"): lambda a, b: a is b,
-    _s("null?"): _null,
-    _s("#t"): True,
-    _s("#f"): False,
-    _s("="): lambda a, b: a == b,
-    _s("-"): lambda a, b: a - b,
-    _s("+"): lambda a, b: a + b,
-    _s("not"): _not,
+    sym.CONS: _cons,
+    sym.CDR: _cdr,
+    sym.CAR: _car,
+    sym.ATOM: _atom,
+    sym.EQ: lambda a, b: a is b,
+    sym.NULL: _null,
+    sym.TRUE: True,
+    sym.FALSE: False,
+    sym.EQ_NUM: lambda a, b: a == b,
+    sym.MINUS_NUM: lambda a, b: a - b,
+    sym.PLUS_NUM: lambda a, b: a + b,
+    sym.NOT: _not,
 }
 """
 A `dict` instance containing standard environment to init
