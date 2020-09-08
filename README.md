@@ -3,6 +3,16 @@
 Pylisper is a simple lisp interpreter. Simple in implementation and simple in implemented dialect.
 In spirit of simplicity pylisper implements repl only (however you are free to extend it to reading files).
 
+## Running from source
+
+Pylisper is build using `poetry` [https://python-poetry.org/].
+Simply `cd` into the project directory and run:
+```
+$ poetry install
+$ poetry run repl
+```
+to start an interactive console.
+
 ## What can it do?
 
 Pylisper understands everything original lisp did but a bit differently and adds some more.
