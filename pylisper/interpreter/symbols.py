@@ -9,12 +9,14 @@ def _s(val: str):
 
 
 # Special forms
+
 DEFINE = _s("define")
 SET = _s("set!")
 BEGIN = _s("begin")
 LAMBDA = _s("lambda")
 COND = _s("cond")
 QUOTE = _s("quote")
+
 
 # std functions
 
